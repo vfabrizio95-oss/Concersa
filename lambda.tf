@@ -79,6 +79,15 @@ resource "aws_iam_role_policy" "lambda_access" {
       {
         Effect = "Allow"
         Action = [
+          "events:PutEvents"
+        ]
+        Resource = [
+          aws_cloudwatch_event_bus.main.arn
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ses:SendEmail",
           "ses:SendRawEmail"
         ]
@@ -92,6 +101,7 @@ resource "aws_lambda_layer_version" "common_dependencies" {
   filename            = "lambda_layers/common_dependencies.zip"
   layer_name          = "${var.project_name}-common-deps-${var.environment}"
   compatible_runtimes = ["nodejs18.x", "python3.11"]
+  description         = "Dependencias comunes para funciones Lambda"
 }
 
 resource "aws_lambda_function" "api_handler" {
@@ -109,6 +119,7 @@ resource "aws_lambda_function" "api_handler" {
     variables = {
       DYNAMODB_USUARIOS_TABLE = aws_dynamodb_table.usuarios.name
       DYNAMODB_INFO_TABLE     = aws_dynamodb_table.informacion_original.name
+      EVENT_BUS_NAME          = aws_cloudwatch_event_bus.main.name
       ENVIRONMENT             = var.environment
     }
   }
@@ -138,6 +149,7 @@ resource "aws_lambda_function" "sqs_orden_recibida_processor" {
   environment {
     variables = {
       DYNAMODB_TABLE = aws_dynamodb_table.informacion_original.name
+      EVENT_BUS_NAME = aws_cloudwatch_event_bus.main.name
     }
   }
 }
@@ -195,6 +207,39 @@ resource "aws_lambda_event_source_mapping" "orden_ejecutada" {
   function_name    = aws_lambda_function.sqs_orden_ejecutada_processor.arn
   batch_size       = 10
   enabled          = true
+}
+
+resource "aws_lambda_function" "orden_eliminada_handler" {
+  filename      = "lambda_functions/orden_eliminada_handler.zip"
+  function_name = "${var.project_name}-orden-eliminada-handler-${var.environment}"
+  role          = aws_iam_role.lambda_exec.arn
+  handler       = "index.handler"
+  runtime       = "python3.11"
+  timeout       = 30
+  memory_size   = 256
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE = aws_dynamodb_table.informacion_original.name
+    }
+  }
+}
+
+resource "aws_lambda_function" "completar_finalizar" {
+  filename      = "lambda_functions/completar_finalizar.zip"
+  function_name = "${var.project_name}-completar-finalizar-${var.environment}"
+  role          = aws_iam_role.lambda_exec.arn
+  handler       = "index.handler"
+  runtime       = "python3.11"
+  timeout       = 60
+  memory_size   = 512
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE = aws_dynamodb_table.informacion_guardada.name
+      S3_BUCKET      = aws_s3_bucket.data_storage.bucket
+    }
+  }
 }
 
 resource "aws_lambda_function" "pdf_processing" {
