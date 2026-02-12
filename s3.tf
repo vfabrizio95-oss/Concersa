@@ -97,11 +97,3 @@ resource "aws_lambda_permission" "s3_invoke_pdf_processing" {
   principal     = "s3.amazonaws.com"
   source_arn    = aws_s3_bucket.data_storage.arn
 }
-
-output "s3_data_storage_bucket_name" {
-  value = aws_s3_bucket.data_storage.bucket
-}
-
-output "s3_data_storage_bucket_arn" {
-  value = aws_s3_bucket.data_storage.arn
-}

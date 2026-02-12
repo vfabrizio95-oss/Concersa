@@ -144,15 +144,3 @@ resource "aws_cloudwatch_metric_alarm" "orden_recibida_dlq" {
     QueueName = aws_sqs_queue.orden_recibida_dlq.name
   }
 }
-
-output "sqs_orden_recibida_url" {
-  value = aws_sqs_queue.orden_recibida.url
-}
-
-output "sqs_orden_validada_url" {
-  value = aws_sqs_queue.orden_validada.url
-}
-
-output "sqs_orden_ejecutada_url" {
-  value = aws_sqs_queue.orden_ejecutada.url
-}

@@ -270,7 +270,3 @@ resource "aws_cloudwatch_log_group" "orden_recibida" {
   name              = "/aws/lambda/${aws_lambda_function.sqs_orden_recibida_processor.function_name}"
   retention_in_days = 7
 }
-
-output "lambda_api_handler_arn" {
-  value = aws_lambda_function.api_handler.arn
-}

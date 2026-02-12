@@ -139,14 +139,3 @@ resource "aws_api_gateway_base_path_mapping" "api" {
   domain_name = aws_api_gateway_domain_name.api.domain_name
 }
 
-output "api_gateway_id" {
-  value = aws_api_gateway_rest_api.main.id
-}
-
-output "api_gateway_url" {
-  value = aws_api_gateway_stage.main.invoke_url
-}
-
-output "api_custom_domain" {
-  value = "https://${aws_api_gateway_domain_name.api.domain_name}"
-}

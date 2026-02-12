@@ -64,9 +64,9 @@ resource "aws_cognito_user_pool_client" "main" {
     "ALLOW_CUSTOM_AUTH"
   ]
 
-  access_token_validity  = 60  
-  id_token_validity      = 60  
-  refresh_token_validity = 30  
+  access_token_validity  = 60
+  id_token_validity      = 60
+  refresh_token_validity = 30
 
   token_validity_units {
     access_token  = "minutes"
@@ -79,7 +79,7 @@ resource "aws_cognito_user_pool_client" "main" {
   allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_scopes                 = ["email", "openid", "profile"]
   allowed_oauth_flows_user_pool_client = true
-  
+
   supported_identity_providers = ["COGNITO"]
 }
 
@@ -144,20 +144,4 @@ resource "aws_iam_role" "cognito_lambda" {
 resource "aws_iam_role_policy_attachment" "cognito_lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   role       = aws_iam_role.cognito_lambda.name
-}
-
-output "cognito_user_pool_id" {
-  value = aws_cognito_user_pool.main.id
-}
-
-output "cognito_user_pool_arn" {
-  value = aws_cognito_user_pool.main.arn
-}
-
-output "cognito_client_id" {
-  value = aws_cognito_user_pool_client.main.id
-}
-
-output "cognito_domain" {
-  value = aws_cognito_user_pool_domain.main.domain
 }

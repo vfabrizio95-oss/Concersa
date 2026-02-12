@@ -116,15 +116,3 @@ resource "aws_ses_template" "notification" {
 EOF
   text = "{{message}} - {{details}}"
 }
-
-output "ses_domain_identity" {
-  value = aws_ses_domain_identity.main.domain
-}
-
-output "ses_configuration_set" {
-  value = aws_ses_configuration_set.main.name
-}
-
-output "ses_smtp_endpoint" {
-  value = "email-smtp.${var.aws_region}.amazonaws.com"
-}

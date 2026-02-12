@@ -156,19 +156,3 @@ resource "aws_cloudwatch_metric_alarm" "dynamodb_write_throttle" {
     TableName = aws_dynamodb_table.usuarios.name
   }
 }
-
-output "dynamodb_usuarios_table_name" {
-  value = aws_dynamodb_table.usuarios.name
-}
-
-output "dynamodb_usuarios_stream_arn" {
-  value = aws_dynamodb_table.usuarios.stream_arn
-}
-
-output "dynamodb_informacion_original_table_name" {
-  value = aws_dynamodb_table.informacion_original.name
-}
-
-output "dynamodb_informacion_guardada_table_name" {
-  value = aws_dynamodb_table.informacion_guardada.name
-}
