@@ -22,4 +22,9 @@ variable "domain_name" {
   default     = "example.com"
 }
 
+variable "api_subdomain" {
+  description = "Subdominio para la API"
+  type        = string
+  default     = "api"
+}
 
