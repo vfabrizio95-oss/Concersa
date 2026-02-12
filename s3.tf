@@ -77,6 +77,27 @@ resource "aws_s3_bucket_cors_configuration" "data_storage" {
   }
 }
 
+resource "aws_s3_bucket_notification" "data_storage" {
+  bucket = aws_s3_bucket.data_storage.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.pdf_processing.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "uploads/pdfs/"
+    filter_suffix       = ".pdf"
+  }
+
+  depends_on = [aws_lambda_permission.s3_invoke_pdf_processing]
+}
+
+resource "aws_lambda_permission" "s3_invoke_pdf_processing" {
+  statement_id  = "AllowExecutionFromS3"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.pdf_processing.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.data_storage.arn
+}
+
 output "s3_data_storage_bucket_name" {
   value = aws_s3_bucket.data_storage.bucket
 }
