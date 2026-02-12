@@ -16,3 +16,10 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "domain_name" {
+  description = "Nombre de dominio principal"
+  type        = string
+  default     = "example.com"
+}
+
+
