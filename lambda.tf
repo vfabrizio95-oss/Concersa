@@ -20,6 +20,11 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.lambda_exec.name
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_vpc" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+  role       = aws_iam_role.lambda_exec.name
+}
+
 resource "aws_iam_role_policy" "lambda_access" {
   name = "${var.project_name}-lambda-access-policy"
   role = aws_iam_role.lambda_exec.id
@@ -60,6 +65,20 @@ resource "aws_iam_role_policy" "lambda_access" {
       {
         Effect = "Allow"
         Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:SendMessage"
+        ]
+        Resource = [
+          aws_sqs_queue.orden_recibida.arn,
+          aws_sqs_queue.orden_validada.arn,
+          aws_sqs_queue.orden_ejecutada.arn
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ses:SendEmail",
           "ses:SendRawEmail"
         ]
@@ -73,7 +92,6 @@ resource "aws_lambda_layer_version" "common_dependencies" {
   filename            = "lambda_layers/common_dependencies.zip"
   layer_name          = "${var.project_name}-common-deps-${var.environment}"
   compatible_runtimes = ["nodejs18.x", "python3.11"]
-  description         = "Dependencias comunes para funciones Lambda"
 }
 
 resource "aws_lambda_function" "api_handler" {
@@ -108,14 +126,14 @@ resource "aws_lambda_permission" "api_gateway" {
   source_arn    = "${aws_api_gateway_rest_api.main.execution_arn}/*/*"
 }
 
-resource "aws_lambda_function" "orden_eliminada_handler" {
-  filename      = "lambda_functions/orden_eliminada_handler.zip"
-  function_name = "${var.project_name}-orden-eliminada-handler-${var.environment}"
+resource "aws_lambda_function" "sqs_orden_recibida_processor" {
+  filename      = "lambda_functions/orden_recibida_processor.zip"
+  function_name = "${var.project_name}-orden-recibida-processor-${var.environment}"
   role          = aws_iam_role.lambda_exec.arn
   handler       = "index.handler"
   runtime       = "python3.11"
-  timeout       = 30
-  memory_size   = 256
+  timeout       = 60
+  memory_size   = 512
 
   environment {
     variables = {
@@ -124,9 +142,16 @@ resource "aws_lambda_function" "orden_eliminada_handler" {
   }
 }
 
-resource "aws_lambda_function" "completar_finalizar" {
-  filename      = "lambda_functions/completar_finalizar.zip"
-  function_name = "${var.project_name}-completar-finalizar-${var.environment}"
+resource "aws_lambda_event_source_mapping" "orden_recibida" {
+  event_source_arn = aws_sqs_queue.orden_recibida.arn
+  function_name    = aws_lambda_function.sqs_orden_recibida_processor.arn
+  batch_size       = 10
+  enabled          = true
+}
+
+resource "aws_lambda_function" "sqs_orden_validada_processor" {
+  filename      = "lambda_functions/orden_validada_processor.zip"
+  function_name = "${var.project_name}-orden-validada-processor-${var.environment}"
   role          = aws_iam_role.lambda_exec.arn
   handler       = "index.handler"
   runtime       = "python3.11"
@@ -139,6 +164,37 @@ resource "aws_lambda_function" "completar_finalizar" {
       S3_BUCKET      = aws_s3_bucket.data_storage.bucket
     }
   }
+}
+
+resource "aws_lambda_event_source_mapping" "orden_validada" {
+  event_source_arn = aws_sqs_queue.orden_validada.arn
+  function_name    = aws_lambda_function.sqs_orden_validada_processor.arn
+  batch_size       = 10
+  enabled          = true
+}
+
+resource "aws_lambda_function" "sqs_orden_ejecutada_processor" {
+  filename      = "lambda_functions/orden_ejecutada_processor.zip"
+  function_name = "${var.project_name}-orden-ejecutada-processor-${var.environment}"
+  role          = aws_iam_role.lambda_exec.arn
+  handler       = "index.handler"
+  runtime       = "python3.11"
+  timeout       = 60
+  memory_size   = 512
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE = aws_dynamodb_table.informacion_guardada.name
+      S3_BUCKET      = aws_s3_bucket.data_storage.bucket
+    }
+  }
+}
+
+resource "aws_lambda_event_source_mapping" "orden_ejecutada" {
+  event_source_arn = aws_sqs_queue.orden_ejecutada.arn
+  function_name    = aws_lambda_function.sqs_orden_ejecutada_processor.arn
+  batch_size       = 10
+  enabled          = true
 }
 
 resource "aws_lambda_function" "pdf_processing" {
@@ -162,6 +218,11 @@ resource "aws_lambda_function" "pdf_processing" {
 
 resource "aws_cloudwatch_log_group" "api_handler" {
   name              = "/aws/lambda/${aws_lambda_function.api_handler.function_name}"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "orden_recibida" {
+  name              = "/aws/lambda/${aws_lambda_function.sqs_orden_recibida_processor.function_name}"
   retention_in_days = 7
 }
 
