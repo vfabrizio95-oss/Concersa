@@ -114,5 +114,5 @@ resource "aws_ses_template" "notification" {
 </body>
 </html>
 EOF
-  text = "{{message}} - {{details}}"
+  text    = "{{message}} - {{details}}"
 }

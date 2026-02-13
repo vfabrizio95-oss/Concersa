@@ -1,8 +1,8 @@
 resource "aws_dynamodb_table" "usuarios" {
-  name           = "${var.project_name}-usuarios-${var.environment}"
-  billing_mode   = "PAY_PER_REQUEST"  
-  hash_key       = "userId"
-  stream_enabled = true
+  name             = "${var.project_name}-usuarios-${var.environment}"
+  billing_mode     = "PAY_PER_REQUEST"
+  hash_key         = "userId"
+  stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
 
   attribute {
@@ -35,11 +35,11 @@ resource "aws_dynamodb_table" "usuarios" {
 }
 
 resource "aws_dynamodb_table" "informacion_original" {
-  name           = "${var.project_name}-informacion-original-${var.environment}"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "infoId"
-  range_key      = "timestamp"
-  stream_enabled = true
+  name             = "${var.project_name}-informacion-original-${var.environment}"
+  billing_mode     = "PAY_PER_REQUEST"
+  hash_key         = "infoId"
+  range_key        = "timestamp"
+  stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
 
   attribute {
@@ -83,11 +83,11 @@ resource "aws_dynamodb_table" "informacion_original" {
 }
 
 resource "aws_dynamodb_table" "informacion_guardada" {
-  name           = "${var.project_name}-informacion-guardada-${var.environment}"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "savedId"
-  range_key      = "userId"
-  stream_enabled = true
+  name             = "${var.project_name}-informacion-guardada-${var.environment}"
+  billing_mode     = "PAY_PER_REQUEST"
+  hash_key         = "savedId"
+  range_key        = "userId"
+  stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
 
   attribute {

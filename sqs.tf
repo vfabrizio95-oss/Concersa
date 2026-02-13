@@ -2,9 +2,9 @@ resource "aws_sqs_queue" "orden_recibida" {
   name                       = "${var.project_name}-orden-recibida-${var.environment}"
   delay_seconds              = 0
   max_message_size           = 262144
-  message_retention_seconds  = 345600 
-  receive_wait_time_seconds  = 10      
-  visibility_timeout_seconds = 300    
+  message_retention_seconds  = 345600
+  receive_wait_time_seconds  = 10
+  visibility_timeout_seconds = 300
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.orden_recibida_dlq.arn
@@ -18,7 +18,7 @@ resource "aws_sqs_queue" "orden_recibida" {
 
 resource "aws_sqs_queue" "orden_recibida_dlq" {
   name                      = "${var.project_name}-orden-recibida-dlq-${var.environment}"
-  message_retention_seconds = 1209600  # 14 días
+  message_retention_seconds = 1209600 # 14 días
 }
 
 resource "aws_sqs_queue" "orden_validada" {

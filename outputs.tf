@@ -67,20 +67,20 @@ output "s3_buckets" {
 output "ses_configuration" {
   description = "Configuración de SES"
   value = {
-    domain             = aws_ses_domain_identity.main.domain
-    configuration_set  = aws_ses_configuration_set.main.name
-    smtp_endpoint      = "email-smtp.${var.aws_region}.amazonaws.com"
+    domain            = aws_ses_domain_identity.main.domain
+    configuration_set = aws_ses_configuration_set.main.name
+    smtp_endpoint     = "email-smtp.${var.aws_region}.amazonaws.com"
   }
 }
 
 output "lambda_functions" {
   description = "ARNs de las funciones Lambda principales"
   value = {
-    api_handler              = aws_lambda_function.api_handler.arn
-    orden_recibida_processor = aws_lambda_function.sqs_orden_recibida_processor.arn
-    orden_validada_processor = aws_lambda_function.sqs_orden_validada_processor.arn
+    api_handler               = aws_lambda_function.api_handler.arn
+    orden_recibida_processor  = aws_lambda_function.sqs_orden_recibida_processor.arn
+    orden_validada_processor  = aws_lambda_function.sqs_orden_validada_processor.arn
     orden_ejecutada_processor = aws_lambda_function.sqs_orden_ejecutada_processor.arn
-    pdf_processing           = aws_lambda_function.pdf_processing.arn
+    pdf_processing            = aws_lambda_function.pdf_processing.arn
   }
 }
 
