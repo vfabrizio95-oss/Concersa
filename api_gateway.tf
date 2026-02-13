@@ -136,6 +136,7 @@ resource "aws_cloudwatch_log_group" "api_gateway" {
 resource "aws_api_gateway_domain_name" "api" {
   domain_name              = "${var.api_subdomain}.${var.domain_name}"
   regional_certificate_arn = aws_acm_certificate.api.arn
+  security_policy          = "TLS_1_2"
 
   endpoint_configuration {
     types = ["REGIONAL"]

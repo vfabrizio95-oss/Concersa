@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<testsuites disabled="0" errors="0" failures="89" tests="236" time="0.0">
-	<testsuite disabled="0" errors="0" failures="89" name="terraform scan" skipped="0" tests="236" time="0">
+<testsuites disabled="0" errors="0" failures="88" tests="236" time="0.0">
+	<testsuite disabled="0" errors="0" failures="88" name="terraform scan" skipped="0" tests="236" time="0">
 		<properties>
 			<property name="directory" value="['/tf']"/>
 			<property name="add_check" value="False"/>
@@ -50,6 +50,7 @@
 		<testcase name="[NONE][CKV_AWS_276] Ensure Data Trace is not enabled in API Gateway Method Settings" classname="/api_gateway.tf.aws_api_gateway_method_settings.main" file="/api_gateway.tf"/>
 		<testcase name="[NONE][CKV_AWS_66] Ensure that CloudWatch Log Group specifies retention days" classname="/api_gateway.tf.aws_cloudwatch_log_group.api_gateway" file="/api_gateway.tf"/>
 		<testcase name="[NONE][CKV_AWS_158] Ensure that CloudWatch Log Group is encrypted by KMS" classname="/api_gateway.tf.aws_cloudwatch_log_group.api_gateway" file="/api_gateway.tf"/>
+		<testcase name="[NONE][CKV_AWS_206] Ensure API Gateway Domain uses a modern security Policy" classname="/api_gateway.tf.aws_api_gateway_domain_name.api" file="/api_gateway.tf"/>
 		<testcase name="[NONE][CKV_AWS_233] Ensure Create before destroy for ACM certificates" classname="/api_gateway.tf.aws_acm_certificate.api" file="/api_gateway.tf"/>
 		<testcase name="[NONE][CKV_AWS_234] Verify logging preference for ACM certificates" classname="/api_gateway.tf.aws_acm_certificate.api" file="/api_gateway.tf"/>
 		<testcase name="[NONE][CKV_AWS_93] Ensure S3 bucket policy does not lockout all but root user. (Prevent lockouts needing root account fixes)" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf"/>
@@ -140,15 +141,15 @@
 		<testcase name="[NONE][CKV_AWS_72] Ensure SQS policy does not allow ALL (*) actions." classname="/sqs.tf.aws_sqs_queue_policy.orden_ejecutada" file="/sqs.tf"/>
 		<testcase name="[NONE][CKV_AWS_319] Ensure that CloudWatch alarm actions are enabled" classname="/sqs.tf.aws_cloudwatch_metric_alarm.orden_recibida_dlq" file="/sqs.tf"/>
 		<testcase name="[NONE][CKV2_AWS_72] Ensure AWS CloudFront origin protocol policy enforces HTTPS-only" classname="/cloudfront.tf.aws_cloudfront_distribution.main" file="/cloudfront.tf"/>
+		<testcase name="[NONE][CKV2_AWS_54] Ensure AWS CloudFront distribution is using secure SSL protocols for HTTPS communication" classname="/cloudfront.tf.aws_cloudfront_distribution.main" file="/cloudfront.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/cognito.tf.aws_iam_role.cognito_lambda" file="/cognito.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/cognito.tf.aws_iam_role_policy_attachment.cognito_lambda_basic" file="/cognito.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/lambda.tf.aws_iam_role.lambda_exec" file="/lambda.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/lambda.tf.aws_iam_role_policy_attachment.lambda_basic" file="/lambda.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/lambda.tf.aws_iam_role_policy_attachment.lambda_vpc" file="/lambda.tf"/>
-		<testcase name="[NONE][CKV2_AWS_54] Ensure AWS CloudFront distribution is using secure SSL protocols for HTTPS communication" classname="/cloudfront.tf.aws_cloudfront_distribution.main" file="/cloudfront.tf"/>
-		<testcase name="[NONE][CKV2_AWS_46] Ensure AWS CloudFront Distribution with S3 have Origin Access set to enabled" classname="/cloudfront.tf.aws_cloudfront_distribution.main" file="/cloudfront.tf"/>
-		<testcase name="[NONE][CKV_AWS_21] Ensure all data stored in the S3 bucket have versioning enabled" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
 		<testcase name="[NONE][CKV2_AWS_61] Ensure that an S3 bucket has a lifecycle configuration" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
+		<testcase name="[NONE][CKV_AWS_21] Ensure all data stored in the S3 bucket have versioning enabled" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
+		<testcase name="[NONE][CKV2_AWS_46] Ensure AWS CloudFront Distribution with S3 have Origin Access set to enabled" classname="/cloudfront.tf.aws_cloudfront_distribution.main" file="/cloudfront.tf"/>
 		<testcase name="[NONE][CKV2_AWS_77] Ensure AWS API Gateway Rest API attached WAFv2 WebACL is configured with AMR for Log4j Vulnerability" classname="/api_gateway.tf.aws_api_gateway_stage.main" file="/api_gateway.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/cognito.tf.aws_lambda_function.cognito_mfa_verifier" file="/cognito.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/lambda.tf.aws_lambda_function.api_handler" file="/lambda.tf"/>
@@ -160,15 +161,15 @@
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/lambda.tf.aws_lambda_function.pdf_processing" file="/lambda.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/ses.tf.aws_lambda_function.ses_notification_processor" file="/ses.tf"/>
 		<testcase name="[NONE][CKV2_AWS_62] Ensure S3 buckets should have event notifications enabled" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
-		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/dynamodb.tf.aws_dynamodb_table.usuarios" file="/dynamodb.tf"/>
-		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/dynamodb.tf.aws_dynamodb_table.informacion_original" file="/dynamodb.tf"/>
-		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/dynamodb.tf.aws_dynamodb_table.informacion_guardada" file="/dynamodb.tf"/>
 		<testcase name="[NONE][CKV2_AWS_73] Ensure AWS SQS uses CMK not AWS default keys for encryption" classname="/sqs.tf.aws_sqs_queue.orden_recibida" file="/sqs.tf"/>
 		<testcase name="[NONE][CKV2_AWS_73] Ensure AWS SQS uses CMK not AWS default keys for encryption" classname="/sqs.tf.aws_sqs_queue.orden_recibida_dlq" file="/sqs.tf"/>
 		<testcase name="[NONE][CKV2_AWS_73] Ensure AWS SQS uses CMK not AWS default keys for encryption" classname="/sqs.tf.aws_sqs_queue.orden_validada" file="/sqs.tf"/>
 		<testcase name="[NONE][CKV2_AWS_73] Ensure AWS SQS uses CMK not AWS default keys for encryption" classname="/sqs.tf.aws_sqs_queue.orden_validada_dlq" file="/sqs.tf"/>
 		<testcase name="[NONE][CKV2_AWS_73] Ensure AWS SQS uses CMK not AWS default keys for encryption" classname="/sqs.tf.aws_sqs_queue.orden_ejecutada" file="/sqs.tf"/>
 		<testcase name="[NONE][CKV2_AWS_73] Ensure AWS SQS uses CMK not AWS default keys for encryption" classname="/sqs.tf.aws_sqs_queue.orden_ejecutada_dlq" file="/sqs.tf"/>
+		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/dynamodb.tf.aws_dynamodb_table.usuarios" file="/dynamodb.tf"/>
+		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/dynamodb.tf.aws_dynamodb_table.informacion_original" file="/dynamodb.tf"/>
+		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/dynamodb.tf.aws_dynamodb_table.informacion_guardada" file="/dynamodb.tf"/>
 		<testcase name="[NONE][CKV2_AWS_71] Ensure AWS ACM Certificate domain name does not include wildcards" classname="/api_gateway.tf.aws_acm_certificate.api" file="/api_gateway.tf"/>
 		<testcase name="[NONE][CKV2_AWS_71] Ensure AWS ACM Certificate domain name does not include wildcards" classname="/cloudfront.tf.aws_acm_certificate.main" file="/cloudfront.tf"/>
 		<testcase name="[NONE][CKV2_AWS_42] Ensure AWS CloudFront distribution uses custom SSL certificate" classname="/cloudfront.tf.aws_cloudfront_distribution.main" file="/cloudfront.tf"/>
@@ -180,10 +181,10 @@
 		<testcase name="[NONE][CKV_AWS_20] S3 Bucket has an ACL defined which allows public READ access." classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
 		<testcase name="[NONE][CKV_AWS_19] Ensure all data stored in the S3 bucket is securely encrypted at rest" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf"/>
 		<testcase name="[NONE][CKV_AWS_19] Ensure all data stored in the S3 bucket is securely encrypted at rest" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
-		<testcase name="[NONE][CKV_AWS_57] S3 Bucket has an ACL defined which allows public WRITE access." classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf"/>
-		<testcase name="[NONE][CKV_AWS_57] S3 Bucket has an ACL defined which allows public WRITE access." classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
 		<testcase name="[NONE][CKV2_AWS_23] Route53 A Record has Attached Resource" classname="/route53.tf.aws_route53_record.cloudfront" file="/route53.tf"/>
 		<testcase name="[NONE][CKV2_AWS_23] Route53 A Record has Attached Resource" classname="/route53.tf.aws_route53_record.api" file="/route53.tf"/>
+		<testcase name="[NONE][CKV_AWS_57] S3 Bucket has an ACL defined which allows public WRITE access." classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf"/>
+		<testcase name="[NONE][CKV_AWS_57] S3 Bucket has an ACL defined which allows public WRITE access." classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf"/>
 		<testcase name="[NONE][CKV_AWS_237] Ensure Create before destroy for API Gateway" classname="/api_gateway.tf.aws_api_gateway_rest_api.main" file="/api_gateway.tf">
 			<failure type="failure" message="Ensure Create before destroy for API Gateway">
 Resource: aws_api_gateway_rest_api.main
@@ -211,22 +212,6 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		132 |   retention_in_days = 7
 		133 |   kms_key_id        = aws_kms_key.cloudwatch_logs.arn
 		134 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV_AWS_206] Ensure API Gateway Domain uses a modern security Policy" classname="/api_gateway.tf.aws_api_gateway_domain_name.api" file="/api_gateway.tf">
-			<failure type="failure" message="Ensure API Gateway Domain uses a modern security Policy">
-Resource: aws_api_gateway_domain_name.api
-File: /api_gateway.tf: 136-143
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-api-gateway-domain-uses-a-modern-security-policy
-
-		136 | resource &quot;aws_api_gateway_domain_name&quot; &quot;api&quot; {
-		137 |   domain_name              = &quot;${var.api_subdomain}.${var.domain_name}&quot;
-		138 |   regional_certificate_arn = aws_acm_certificate.api.arn
-		139 | 
-		140 |   endpoint_configuration {
-		141 |     types = [&quot;REGIONAL&quot;]
-		142 |   }
-		143 | }
 </failure>
 		</testcase>
 		<testcase name="[NONE][CKV_AWS_374] Ensure AWS CloudFront web distribution has geo restriction enabled" classname="/cloudfront.tf.aws_cloudfront_distribution.main" file="/cloudfront.tf">
@@ -1849,54 +1834,6 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		60 | }
 </failure>
 		</testcase>
-		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
-			<failure type="failure" message="Ensure that S3 buckets are encrypted with KMS by default">
-Resource: aws_s3_bucket.frontend
-File: /cloudfront.tf: 1-3
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
-
-		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
-		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
-		3 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf">
-			<failure type="failure" message="Ensure that S3 buckets are encrypted with KMS by default">
-Resource: aws_s3_bucket.data_storage
-File: /s3.tf: 1-7
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
-
-		1 | resource &quot;aws_s3_bucket&quot; &quot;data_storage&quot; {
-		2 |   bucket = &quot;${var.project_name}-data-storage-${var.environment}&quot;
-		3 | 
-		4 |   tags = {
-		5 |     Name = &quot;${var.project_name}-data-storage&quot;
-		6 |   }
-		7 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV_AWS_21] Ensure all data stored in the S3 bucket have versioning enabled" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
-			<failure type="failure" message="Ensure all data stored in the S3 bucket have versioning enabled">
-Resource: aws_s3_bucket.frontend
-File: /cloudfront.tf: 1-3
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-16-enable-versioning
-
-		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
-		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
-		3 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV2_AWS_61] Ensure that an S3 bucket has a lifecycle configuration" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
-			<failure type="failure" message="Ensure that an S3 bucket has a lifecycle configuration">
-Resource: aws_s3_bucket.frontend
-File: /cloudfront.tf: 1-3
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-61
-
-		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
-		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
-		3 | }
-</failure>
-		</testcase>
 		<testcase name="[NONE][CKV_AWS_18] Ensure the S3 bucket has access logging enabled" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
 			<failure type="failure" message="Ensure the S3 bucket has access logging enabled">
 Resource: aws_s3_bucket.frontend
@@ -1921,6 +1858,28 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		5 |     Name = &quot;${var.project_name}-data-storage&quot;
 		6 |   }
 		7 | }
+</failure>
+		</testcase>
+		<testcase name="[NONE][CKV2_AWS_61] Ensure that an S3 bucket has a lifecycle configuration" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
+			<failure type="failure" message="Ensure that an S3 bucket has a lifecycle configuration">
+Resource: aws_s3_bucket.frontend
+File: /cloudfront.tf: 1-3
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-61
+
+		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
+		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
+		3 | }
+</failure>
+		</testcase>
+		<testcase name="[NONE][CKV_AWS_21] Ensure all data stored in the S3 bucket have versioning enabled" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
+			<failure type="failure" message="Ensure all data stored in the S3 bucket have versioning enabled">
+Resource: aws_s3_bucket.frontend
+File: /cloudfront.tf: 1-3
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-16-enable-versioning
+
+		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
+		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
+		3 | }
 </failure>
 		</testcase>
 		<testcase name="[NONE][CKV2_AWS_51] Ensure AWS API Gateway endpoints uses client certificate authentication" classname="/api_gateway.tf.aws_api_gateway_stage.main" file="/api_gateway.tf">
@@ -1995,6 +1954,70 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		4 | }
 </failure>
 		</testcase>
+		<testcase name="[NONE][CKV2_AWS_39] Ensure Domain Name System (DNS) query logging is enabled for Amazon Route 53 hosted zones" classname="/route53.tf.aws_route53_zone.main" file="/route53.tf">
+			<failure type="failure" message="Ensure Domain Name System (DNS) query logging is enabled for Amazon Route 53 hosted zones">
+Resource: aws_route53_zone.main
+File: /route53.tf: 1-4
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-39
+
+		1 | resource &quot;aws_route53_zone&quot; &quot;main&quot; {
+		2 |   name    = var.domain_name
+		3 |   comment = &quot;Zona DNS principal para ${var.project_name}&quot;
+		4 | }
+</failure>
+		</testcase>
+		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
+			<failure type="failure" message="Ensure that S3 buckets are encrypted with KMS by default">
+Resource: aws_s3_bucket.frontend
+File: /cloudfront.tf: 1-3
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
+
+		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
+		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
+		3 | }
+</failure>
+		</testcase>
+		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf">
+			<failure type="failure" message="Ensure that S3 buckets are encrypted with KMS by default">
+Resource: aws_s3_bucket.data_storage
+File: /s3.tf: 1-7
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
+
+		1 | resource &quot;aws_s3_bucket&quot; &quot;data_storage&quot; {
+		2 |   bucket = &quot;${var.project_name}-data-storage-${var.environment}&quot;
+		3 | 
+		4 |   tags = {
+		5 |     Name = &quot;${var.project_name}-data-storage&quot;
+		6 |   }
+		7 | }
+</failure>
+		</testcase>
+		<testcase name="[NONE][CKV_AWS_144] Ensure that S3 bucket has cross-region replication enabled" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
+			<failure type="failure" message="Ensure that S3 bucket has cross-region replication enabled">
+Resource: aws_s3_bucket.frontend
+File: /cloudfront.tf: 1-3
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
+
+		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
+		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
+		3 | }
+</failure>
+		</testcase>
+		<testcase name="[NONE][CKV_AWS_144] Ensure that S3 bucket has cross-region replication enabled" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf">
+			<failure type="failure" message="Ensure that S3 bucket has cross-region replication enabled">
+Resource: aws_s3_bucket.data_storage
+File: /s3.tf: 1-7
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
+
+		1 | resource &quot;aws_s3_bucket&quot; &quot;data_storage&quot; {
+		2 |   bucket = &quot;${var.project_name}-data-storage-${var.environment}&quot;
+		3 | 
+		4 |   tags = {
+		5 |     Name = &quot;${var.project_name}-data-storage&quot;
+		6 |   }
+		7 | }
+</failure>
+		</testcase>
 		<testcase name="[NONE][CKV2_AWS_53] Ensure AWS API gateway request is validated" classname="/api_gateway.tf.aws_api_gateway_method.ventas_post" file="/api_gateway.tf">
 			<failure type="failure" message="Ensure AWS API gateway request is validated">
 Resource: aws_api_gateway_method.ventas_post
@@ -2023,44 +2046,6 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		63 |   authorization = &quot;COGNITO_USER_POOLS&quot;
 		64 |   authorizer_id = aws_api_gateway_authorizer.cognito.id
 		65 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV2_AWS_39] Ensure Domain Name System (DNS) query logging is enabled for Amazon Route 53 hosted zones" classname="/route53.tf.aws_route53_zone.main" file="/route53.tf">
-			<failure type="failure" message="Ensure Domain Name System (DNS) query logging is enabled for Amazon Route 53 hosted zones">
-Resource: aws_route53_zone.main
-File: /route53.tf: 1-4
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-39
-
-		1 | resource &quot;aws_route53_zone&quot; &quot;main&quot; {
-		2 |   name    = var.domain_name
-		3 |   comment = &quot;Zona DNS principal para ${var.project_name}&quot;
-		4 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV_AWS_144] Ensure that S3 bucket has cross-region replication enabled" classname="/cloudfront.tf.aws_s3_bucket.frontend" file="/cloudfront.tf">
-			<failure type="failure" message="Ensure that S3 bucket has cross-region replication enabled">
-Resource: aws_s3_bucket.frontend
-File: /cloudfront.tf: 1-3
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
-
-		1 | resource &quot;aws_s3_bucket&quot; &quot;frontend&quot; {
-		2 |   bucket = &quot;${var.project_name}-frontend-${var.environment}&quot;
-		3 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV_AWS_144] Ensure that S3 bucket has cross-region replication enabled" classname="/s3.tf.aws_s3_bucket.data_storage" file="/s3.tf">
-			<failure type="failure" message="Ensure that S3 bucket has cross-region replication enabled">
-Resource: aws_s3_bucket.data_storage
-File: /s3.tf: 1-7
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
-
-		1 | resource &quot;aws_s3_bucket&quot; &quot;data_storage&quot; {
-		2 |   bucket = &quot;${var.project_name}-data-storage-${var.environment}&quot;
-		3 | 
-		4 |   tags = {
-		5 |     Name = &quot;${var.project_name}-data-storage&quot;
-		6 |   }
-		7 | }
 </failure>
 		</testcase>
 		<testcase name="[NONE][CKV2_AWS_29] Ensure public API gateway are protected by WAF" classname="/api_gateway.tf.aws_api_gateway_stage.main" file="/api_gateway.tf">
