@@ -113,6 +113,10 @@ resource "aws_lambda_function" "api_handler" {
   timeout       = 30
   memory_size   = 512
 
+    tracing_config {
+    mode = "Active"
+  }
+
   layers = [aws_lambda_layer_version.common_dependencies.arn]
 
   environment {
@@ -124,9 +128,7 @@ resource "aws_lambda_function" "api_handler" {
     }
   }
 
-  tracing_config {
-    mode = "Active"
-  }
+
 }
 
 resource "aws_lambda_permission" "api_gateway" {
@@ -145,6 +147,10 @@ resource "aws_lambda_function" "sqs_orden_recibida_processor" {
   runtime       = "python3.11"
   timeout       = 60
   memory_size   = 512
+
+    tracing_config {
+    mode = "Active"
+  }
 
   environment {
     variables = {
@@ -170,6 +176,10 @@ resource "aws_lambda_function" "sqs_orden_validada_processor" {
   timeout       = 60
   memory_size   = 512
 
+    tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       DYNAMODB_TABLE = aws_dynamodb_table.informacion_guardada.name
@@ -193,6 +203,10 @@ resource "aws_lambda_function" "sqs_orden_ejecutada_processor" {
   runtime       = "python3.11"
   timeout       = 60
   memory_size   = 512
+
+    tracing_config {
+    mode = "Active"
+  }
 
   environment {
     variables = {
@@ -218,6 +232,10 @@ resource "aws_lambda_function" "orden_eliminada_handler" {
   timeout       = 30
   memory_size   = 256
 
+    tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       DYNAMODB_TABLE = aws_dynamodb_table.informacion_original.name
@@ -233,6 +251,10 @@ resource "aws_lambda_function" "completar_finalizar" {
   runtime       = "python3.11"
   timeout       = 60
   memory_size   = 512
+
+    tracing_config {
+    mode = "Active"
+  }
 
   environment {
     variables = {
@@ -250,6 +272,10 @@ resource "aws_lambda_function" "pdf_processing" {
   runtime       = "python3.11"
   timeout       = 120
   memory_size   = 1024
+
+    tracing_config {
+    mode = "Active"
+  }
 
   layers = [aws_lambda_layer_version.common_dependencies.arn]
 
