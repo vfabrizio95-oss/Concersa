@@ -6,6 +6,8 @@ resource "aws_sqs_queue" "orden_recibida" {
   receive_wait_time_seconds  = 10
   visibility_timeout_seconds = 300
 
+    sqs_managed_sse_enabled = true
+
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.orden_recibida_dlq.arn
     maxReceiveCount     = 3
@@ -19,6 +21,8 @@ resource "aws_sqs_queue" "orden_recibida" {
 resource "aws_sqs_queue" "orden_recibida_dlq" {
   name                      = "${var.project_name}-orden-recibida-dlq-${var.environment}"
   message_retention_seconds = 1209600 # 14 días
+
+    sqs_managed_sse_enabled = true
 }
 
 resource "aws_sqs_queue" "orden_validada" {
@@ -29,6 +33,8 @@ resource "aws_sqs_queue" "orden_validada" {
   receive_wait_time_seconds  = 10
   visibility_timeout_seconds = 300
 
+    sqs_managed_sse_enabled = true
+
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.orden_validada_dlq.arn
     maxReceiveCount     = 3
@@ -38,6 +44,8 @@ resource "aws_sqs_queue" "orden_validada" {
 resource "aws_sqs_queue" "orden_validada_dlq" {
   name                      = "${var.project_name}-orden-validada-dlq-${var.environment}"
   message_retention_seconds = 1209600
+
+    sqs_managed_sse_enabled = true
 }
 
 resource "aws_sqs_queue" "orden_ejecutada" {
@@ -48,6 +56,8 @@ resource "aws_sqs_queue" "orden_ejecutada" {
   receive_wait_time_seconds  = 10
   visibility_timeout_seconds = 300
 
+    sqs_managed_sse_enabled = true
+
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.orden_ejecutada_dlq.arn
     maxReceiveCount     = 3
@@ -57,6 +67,8 @@ resource "aws_sqs_queue" "orden_ejecutada" {
 resource "aws_sqs_queue" "orden_ejecutada_dlq" {
   name                      = "${var.project_name}-orden-ejecutada-dlq-${var.environment}"
   message_retention_seconds = 1209600
+
+    sqs_managed_sse_enabled = true
 }
 
 resource "aws_sqs_queue_policy" "orden_recibida" {
