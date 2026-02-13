@@ -44,6 +44,8 @@ resource "aws_ses_event_destination" "cloudwatch" {
 
 resource "aws_sns_topic" "ses_notifications" {
   name = "${var.project_name}-ses-notifications-${var.environment}"
+
+  kms_master_key_id != null
 }
 
 resource "aws_ses_identity_notification_topic" "bounce" {
