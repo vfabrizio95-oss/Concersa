@@ -264,9 +264,11 @@ resource "aws_lambda_function" "pdf_processing" {
 resource "aws_cloudwatch_log_group" "api_handler" {
   name              = "/aws/lambda/${aws_lambda_function.api_handler.function_name}"
   retention_in_days = 7
+  kms_key_id = aws_kms_key.cloudwatch_logs.arn
 }
 
 resource "aws_cloudwatch_log_group" "orden_recibida" {
   name              = "/aws/lambda/${aws_lambda_function.sqs_orden_recibida_processor.function_name}"
   retention_in_days = 7
+  kms_key_id = aws_kms_key.cloudwatch_logs.arn
 }
