@@ -27,6 +27,7 @@ resource "aws_dynamodb_table" "usuarios" {
 
   server_side_encryption {
     enabled = true
+    kms_key_arn = aws_kms_key.dynamodb.arn
   }
 
   tags = {
@@ -75,6 +76,7 @@ resource "aws_dynamodb_table" "informacion_original" {
 
   server_side_encryption {
     enabled = true
+    kms_key_arn = aws_kms_key.dynamodb.arn
   }
 
   tags = {
@@ -118,6 +120,7 @@ resource "aws_dynamodb_table" "informacion_guardada" {
 
   server_side_encryption {
     enabled = true
+    kms_key_arn = aws_kms_key.dynamodb.arn
   }
 
   tags = {
