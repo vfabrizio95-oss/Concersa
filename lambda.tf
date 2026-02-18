@@ -1,5 +1,5 @@
-resource "aws_iam_role" "lambda_exec" {
-  name = "${var.project_name}-lambda-exec-role-${var.environment}"
+resource "aws_iam_role" "lambda" {
+  name = "${local.prefix}-lambda-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -17,22 +17,28 @@ resource "aws_iam_role" "lambda_exec" {
 
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.lambda_exec.name
+  role       = aws_iam_role.lambda.name
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_vpc" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-  role       = aws_iam_role.lambda_exec.name
+  role       = aws_iam_role.lambda.name
 }
 
-resource "aws_iam_role_policy" "lambda_access" {
-  name = "${var.project_name}-lambda-access-policy"
-  role = aws_iam_role.lambda_exec.id
+resource "aws_iam_role_policy_attachment" "lambda_xray" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+  role       = aws_iam_role.lambda.name
+}
+
+resource "aws_iam_role_policy" "lambda_custom" {
+  name = "${local.prefix}-lambda-policy"
+  role = aws_iam_role.lambda.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid: "Dynamo"
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
@@ -52,6 +58,18 @@ resource "aws_iam_role_policy" "lambda_access" {
         ]
       },
       {
+        Sid      = "SNS"
+        Effect   = "Allow"
+        Action   = [
+          "sns:Publish"
+        ]
+        Resource = [
+          aws_sns_topic.notificaciones.arn,
+          aws_sns_topic.valorizacion_terminada.arn
+        ]
+      },
+      {
+        Sid = "S3"
         Effect = "Allow"
         Action = [
           "s3:GetObject",
@@ -63,6 +81,7 @@ resource "aws_iam_role_policy" "lambda_access" {
         ]
       },
       {
+        Sid: "SQS"
         Effect = "Allow"
         Action = [
           "sqs:ReceiveMessage",
@@ -77,6 +96,7 @@ resource "aws_iam_role_policy" "lambda_access" {
         ]
       },
       {
+        Sid = "Events"
         Effect = "Allow"
         Action = [
           "events:PutEvents"
@@ -86,6 +106,19 @@ resource "aws_iam_role_policy" "lambda_access" {
         ]
       },
       {
+        Sid      = "KMS"
+        Effect   = "Allow"
+        Action   = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey",
+          "kms:DescribeKey"
+        ]
+        Resource = [
+          aws_kms_key.main.arn
+        ]
+      },
+      {
+        Sid = "SES"
         Effect = "Allow"
         Action = [
           "ses:SendEmail",
@@ -97,56 +130,67 @@ resource "aws_iam_role_policy" "lambda_access" {
   })
 }
 
-resource "aws_lambda_layer_version" "common_dependencies" {
-  filename            = "lambda_layers/common_dependencies.zip"
-  layer_name          = "${var.project_name}-common-deps-${var.environment}"
-  compatible_runtimes = ["nodejs18.x", "python3.11"]
-  description         = "Dependencias comunes para funciones Lambda"
+data "archive_file" "placeholder" {
+  type        = "zip"
+  output_path = "/tmp/lambda_placeholder.zip"
+  source {
+    filename = "index.js"
+    content  = "exports.handler = async (e, c) => ({ statusCode: 200, body: JSON.stringify({ ok: true, id: c.awsRequestId }) });"
+  }
 }
 
-resource "aws_lambda_function" "api_handler" {
-  filename      = "lambda_functions/api_handler.zip"
-  function_name = "${var.project_name}-api-handler-${var.environment}"
-  role          = aws_iam_role.lambda_exec.arn
+resource "aws_lambda_function" "valorizacion_consersa" {
+  filename      = data.archive_file.placeholder.output_path
+  function_name = "${local.prefix}-valorizacion-consersa"
+  role          = aws_iam_role.lambda.arn
   handler       = "index.handler"
-  runtime       = "nodejs18.x"
+  runtime       = "nodejs20.x"
   timeout       = 30
-  memory_size   = 512
+  memory_size   = 256
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+
+  vpc_config {
+    subnet_ids         = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
 
     tracing_config {
     mode = "Active"
   }
 
-  layers = [aws_lambda_layer_version.common_dependencies.arn]
-
   environment {
     variables = {
-      DYNAMODB_USUARIOS_TABLE = aws_dynamodb_table.usuarios.name
-      DYNAMODB_INFO_TABLE     = aws_dynamodb_table.informacion_original.name
-      EVENT_BUS_NAME          = aws_cloudwatch_event_bus.main.name
-      ENVIRONMENT             = var.environment
+      TABLE_USUARIOS             = aws_dynamodb_table.usuarios.name
+      TABLE_INFORMACION_ORIGINAL = aws_dynamodb_table.informacion_original.name
+      TABLE_INFORMACION_GUARDADA = aws_dynamodb_table.informacion_guardada.name
+      EVENT_BUS_NAME             = aws_cloudwatch_event_bus.main.name
+      SQS_VAL_URL                = aws_sqs_queue.valorizaciones.url
     }
   }
-
-
 }
 
-resource "aws_lambda_permission" "api_gateway" {
-  statement_id  = "AllowExecutionFromAPIGateway"
+resource "aws_lambda_permission" "api_gateway_valorizacion" {
+  statement_id  = "AllowAPIGW"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.api_handler.function_name
+  function_name = aws_lambda_function.valorizacion_consersa.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.main.execution_arn}/*/*"
 }
 
-resource "aws_lambda_function" "sqs_orden_recibida_processor" {
-  filename      = "lambda_functions/orden_recibida_processor.zip"
-  function_name = "${var.project_name}-orden-recibida-processor-${var.environment}"
-  role          = aws_iam_role.lambda_exec.arn
+resource "aws_lambda_function" "orden_recibida" {
+  filename      = data.archive_file.placeholder.output_path
+  function_name = "${local.prefix}-orden-recibida"
+  role          = aws_iam_role.lambda.arn
   handler       = "index.handler"
-  runtime       = "python3.11"
-  timeout       = 60
-  memory_size   = 512
+  runtime       = "nodejs20.x"
+  timeout       = 30
+  memory_size   = 256
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+  
+  vpc_config {
+    subnet_ids         = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
 
     tracing_config {
     mode = "Active"
@@ -154,83 +198,35 @@ resource "aws_lambda_function" "sqs_orden_recibida_processor" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE = aws_dynamodb_table.informacion_original.name
+      TABLE_USUARIOS = aws_dynamodb_table.usuarios.name
+      TABLE_INFORMACION_ORIGINAL = aws_dynamodb_table.informacion_original.name
+      TABLE_INFORMACION_GUARDADA = aws_dynamodb_table.informacion_guardada.name
       EVENT_BUS_NAME = aws_cloudwatch_event_bus.main.name
     }
   }
 }
 
-resource "aws_lambda_event_source_mapping" "orden_recibida" {
-  event_source_arn = aws_sqs_queue.orden_recibida.arn
-  function_name    = aws_lambda_function.sqs_orden_recibida_processor.arn
-  batch_size       = 10
-  enabled          = true
+resource "aws_lambda_permission" "api_gateway_orden_recibida" {
+  statement_id  = "AllowAPIGW"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.orden_recibida.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.main.execution_arn}//"
 }
 
-resource "aws_lambda_function" "sqs_orden_validada_processor" {
-  filename      = "lambda_functions/orden_validada_processor.zip"
-  function_name = "${var.project_name}-orden-validada-processor-${var.environment}"
-  role          = aws_iam_role.lambda_exec.arn
+resource "aws_lambda_function" "orden_eliminada" {
+  filename      = data.archive_file.placeholder.output_path
+  function_name = "${local.prefix}-orden-eliminada"
+  role          = aws_iam_role.lambda.arn
   handler       = "index.handler"
-  runtime       = "python3.11"
-  timeout       = 60
-  memory_size   = 512
-
-    tracing_config {
-    mode = "Active"
-  }
-
-  environment {
-    variables = {
-      DYNAMODB_TABLE = aws_dynamodb_table.informacion_guardada.name
-      S3_BUCKET      = aws_s3_bucket.data_storage.bucket
-    }
-  }
-}
-
-resource "aws_lambda_event_source_mapping" "orden_validada" {
-  event_source_arn = aws_sqs_queue.orden_validada.arn
-  function_name    = aws_lambda_function.sqs_orden_validada_processor.arn
-  batch_size       = 10
-  enabled          = true
-}
-
-resource "aws_lambda_function" "sqs_orden_ejecutada_processor" {
-  filename      = "lambda_functions/orden_ejecutada_processor.zip"
-  function_name = "${var.project_name}-orden-ejecutada-processor-${var.environment}"
-  role          = aws_iam_role.lambda_exec.arn
-  handler       = "index.handler"
-  runtime       = "python3.11"
-  timeout       = 60
-  memory_size   = 512
-
-    tracing_config {
-    mode = "Active"
-  }
-
-  environment {
-    variables = {
-      DYNAMODB_TABLE = aws_dynamodb_table.informacion_guardada.name
-      S3_BUCKET      = aws_s3_bucket.data_storage.bucket
-    }
-  }
-}
-
-resource "aws_lambda_event_source_mapping" "orden_ejecutada" {
-  event_source_arn = aws_sqs_queue.orden_ejecutada.arn
-  function_name    = aws_lambda_function.sqs_orden_ejecutada_processor.arn
-  batch_size       = 10
-  enabled          = true
-}
-
-resource "aws_lambda_function" "orden_eliminada_handler" {
-  filename      = "lambda_functions/orden_eliminada_handler.zip"
-  function_name = "${var.project_name}-orden-eliminada-handler-${var.environment}"
-  role          = aws_iam_role.lambda_exec.arn
-  handler       = "index.handler"
-  runtime       = "python3.11"
+  runtime       = "nodejs20.x"
   timeout       = 30
   memory_size   = 256
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+  vpc_config {
+    subnet_ids         = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
 
     tracing_config {
     mode = "Active"
@@ -238,19 +234,36 @@ resource "aws_lambda_function" "orden_eliminada_handler" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE = aws_dynamodb_table.informacion_original.name
+      TABLE_USUARIOS             = aws_dynamodb_table.usuarios.name
+      TABLE_INFORMACION_ORIGINAL = aws_dynamodb_table.informacion_original.name
+      TABLE_INFORMACION_GUARDADA = aws_dynamodb_table.informacion_guardada.name
+      EVENT_BUS_NAME             = aws_cloudwatch_event_bus.main.name
     }
   }
 }
 
-resource "aws_lambda_function" "completar_finalizar" {
-  filename      = "lambda_functions/completar_finalizar.zip"
-  function_name = "${var.project_name}-completar-finalizar-${var.environment}"
-  role          = aws_iam_role.lambda_exec.arn
+resource "aws_lambda_permission" "api_gateway_orden_eliminada" {
+  statement_id  = "AllowAPIGW"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.orden_eliminada.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.main.execution_arn}//"
+}
+
+resource "aws_lambda_function" "consultar_ordenes" {
+  filename      = data.archive_file.placeholder.output_path
+  function_name = "${local.prefix}-consultar-ordenes"
+  role          = aws_iam_role.lambda.arn
   handler       = "index.handler"
-  runtime       = "python3.11"
-  timeout       = 60
-  memory_size   = 512
+  runtime       = "nodejs20.x"
+  timeout       = 30
+  memory_size   = 256
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+
+   vpc_config {
+    subnet_ids         = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
 
     tracing_config {
     mode = "Active"
@@ -258,43 +271,84 @@ resource "aws_lambda_function" "completar_finalizar" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE = aws_dynamodb_table.informacion_guardada.name
-      S3_BUCKET      = aws_s3_bucket.data_storage.bucket
+      TABLE_USUARIOS             = aws_dynamodb_table.usuarios.name
+      TABLE_INFORMACION_ORIGINAL = aws_dynamodb_table.informacion_original.name
+      TABLE_INFORMACION_GUARDADA = aws_dynamodb_table.informacion_guardada.name
     }
   }
+}
+
+resource "aws_lambda_permission" "api_gateway_consultar" {
+  statement_id  = "AllowAPIGW"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.consultar_ordenes.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.main.execution_arn}//"
+}
+
+resource "aws_lambda_function" valorizacion_completada" {
+  filename      = data.archive_file.placeholder.output_path
+  function_name = "${local.prefix}-valorizacion-completada"
+  role          = aws_iam_role.lambda.arn
+  handler       = "index.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 60
+  memory_size   = 512
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+
+  vpc_config {
+    subnet_ids         = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
+
+    tracing_config {
+    mode = "Active"
+  }
+
+  environment {
+    variables = {
+      TABLE_USUARIOS             = aws_dynamodb_table.usuarios.name
+      TABLE_INFORMACION_ORIGINAL = aws_dynamodb_table.informacion_original.name
+      TABLE_INFORMACION_GUARDADA = aws_dynamodb_table.informacion_guardada.name
+      SNS_VALORIZACION           = aws_sns_topic.valorizacion_terminada.arn
+      SES_FROM_EMAIL             = "notificaciones@${var.domain_name}"
+    }
+  }
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_valorizacion" {
+  event_source_arn        = aws_sqs_queue.valorizaciones.arn
+  function_name           = aws_lambda_function.valorizacion_completada.arn
+  batch_size              = 10
+  function_response_types = ["ReportBatchItemFailures"]
 }
 
 resource "aws_lambda_function" "pdf_processing" {
-  filename      = "lambda_functions/pdf_processing.zip"
-  function_name = "${var.project_name}-pdf-processing-${var.environment}"
-  role          = aws_iam_role.lambda_exec.arn
+  filename      = data.archive_file.placeholder.output_path
+  function_name = "${local.prefix}-pdf-processing"
+  role          = aws_iam_role.lambda.arn
   handler       = "index.handler"
-  runtime       = "python3.11"
+  runtime       = "nodejs20.x"
   timeout       = 120
   memory_size   = 1024
+
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+
+  vpc_config {
+    subnet_ids         = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
 
     tracing_config {
     mode = "Active"
   }
 
-  layers = [aws_lambda_layer_version.common_dependencies.arn]
-
   environment {
     variables = {
-      S3_BUCKET      = aws_s3_bucket.data_storage.bucket
-      DYNAMODB_TABLE = aws_dynamodb_table.informacion_guardada.name
+      PDF_BUCKET                 = aws_s3_bucket.pdfs.bucket
+      TABLE_INFORMACION_ORIGINAL = aws_dynamodb_table.informacion_original.name
+      TABLE_INFORMACION_GUARDADA = aws_dynamodb_table.informacion_guardada.name
     }
   }
-}
-
-resource "aws_cloudwatch_log_group" "api_handler" {
-  name              = "/aws/lambda/${aws_lambda_function.api_handler.function_name}"
-  retention_in_days = 365
-  kms_key_id = aws_kms_key.cloudwatch_logs.arn
-}
-
-resource "aws_cloudwatch_log_group" "orden_recibida" {
-  name              = "/aws/lambda/${aws_lambda_function.sqs_orden_recibida_processor.function_name}"
-  retention_in_days = 365
-  kms_key_id = aws_kms_key.cloudwatch_logs.arn
+  ephemeral_storage { size = 1024 }
 }

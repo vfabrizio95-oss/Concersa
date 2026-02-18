@@ -27,7 +27,7 @@ resource "aws_api_gateway_resource" "valorización" {
 
 resource "aws_api_gateway_resource" "valorizacion_id" {
   rest_api_id = aws_api_gateway_rest_api.main.id
-  parent_id   = aws_api_gateway_resource.ventas.id
+  parent_id   = aws_api_gateway_resource.valorizacion.id
   path_part   = "{id}"
 }
 
@@ -45,7 +45,7 @@ resource "aws_api_gateway_integration" "valorizacion_post" {
   http_method             = aws_api_gateway_method.valorizacion_post.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.api_handler.invoke_arn
+  uri                     = aws_lambda_function.valorizacion_consersa.invoke_arn
 }
 
 resource "aws_api_gateway_resource" "orden" {
@@ -74,7 +74,7 @@ resource "aws_api_gateway_integration" "post_orden" {
   http_method             = aws_api_gateway_method.post_orden.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.api_handler.invoke_arn
+  uri                     = aws_lambda_function.orden_recibida.invoke_arn
 }
 
 resource "aws_api_gateway_method" "delete_orden" {
@@ -91,7 +91,7 @@ resource "aws_api_gateway_integration" "delete_orden" {
   http_method             = aws_api_gateway_method.delete_orden.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.orden_eliminada_handler.invoke_arn
+  uri                     = aws_lambda_function.orden_eliminada.invoke_arn
 }
 
 resource "aws_api_gateway_method" "get_orden" {
@@ -108,7 +108,7 @@ resource "aws_api_gateway_integration" "get_orden" {
   http_method             = aws_api_gateway_method.get_orden.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.api_handler.invoke_arn
+  uri                     = aws_lambda_function.consultar_ordenes.invoke_arn
 }
 
 resource "aws_api_gateway_deployment" "main" {
