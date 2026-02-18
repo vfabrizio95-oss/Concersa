@@ -28,6 +28,11 @@ variable "api_subdomain" {
   default     = "api"
 }
 
+variable "kms_master_key_id" {
+  type    = string
+  default = null
+}
+
 locals {
   prefix = "${var.project_name}-${var.environment}"
 }

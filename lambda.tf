@@ -286,7 +286,7 @@ resource "aws_lambda_permission" "api_gateway_consultar" {
   source_arn    = "${aws_api_gateway_rest_api.main.execution_arn}//"
 }
 
-resource "aws_lambda_function" valorizacion_completada" {
+resource "aws_lambda_function" "valorizacion_completada" {
   filename      = data.archive_file.placeholder.output_path
   function_name = "${local.prefix}-valorizacion-completada"
   role          = aws_iam_role.lambda.arn
@@ -350,5 +350,7 @@ resource "aws_lambda_function" "pdf_processing" {
       TABLE_INFORMACION_GUARDADA = aws_dynamodb_table.informacion_guardada.name
     }
   }
-  ephemeral_storage { size = 1024 }
+  ephemeral_storage {
+   size = 1024
+  }
 }
