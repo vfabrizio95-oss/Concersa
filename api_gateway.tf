@@ -1,6 +1,6 @@
 resource "aws_api_gateway_rest_api" "main" {
-  name        = "${var.project_name}-api-${var.environment}"
-  description = "API Gateway para ${var.project_name}"
+  name        = "${local.prefix}-api"
+  description = "API Gateway Regional - ${local.prefix}"
 
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -12,26 +12,26 @@ resource "aws_api_gateway_rest_api" "main" {
 }
 
 resource "aws_api_gateway_authorizer" "cognito" {
-  name            = "cognito-authorizer"
+  name            = "${local.prefix}-cognito-auth"
   rest_api_id     = aws_api_gateway_rest_api.main.id
   type            = "COGNITO_USER_POOLS"
   identity_source = "method.request.header.Authorization"
   provider_arns   = [aws_cognito_user_pool.main.arn]
 }
 
-resource "aws_api_gateway_resource" "ventas" {
+resource "aws_api_gateway_resource" "valorización" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   parent_id   = aws_api_gateway_rest_api.main.root_resource_id
-  path_part   = "ventas"
+  path_part   = "valorización"
 }
 
-resource "aws_api_gateway_resource" "ventas_id" {
+resource "aws_api_gateway_resource" "valorizacion_id" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   parent_id   = aws_api_gateway_resource.ventas.id
   path_part   = "{id}"
 }
 
-resource "aws_api_gateway_method" "ventas_post" {
+resource "aws_api_gateway_method" "valorizacion_post" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   resource_id   = aws_api_gateway_resource.ventas_id.id
   http_method   = "POST"
@@ -39,39 +39,73 @@ resource "aws_api_gateway_method" "ventas_post" {
   authorizer_id = aws_api_gateway_authorizer.cognito.id
 }
 
-resource "aws_api_gateway_integration" "ventas_post" {
+resource "aws_api_gateway_integration" "valorizacion_post" {
   rest_api_id             = aws_api_gateway_rest_api.main.id
-  resource_id             = aws_api_gateway_resource.ventas_id.id
-  http_method             = aws_api_gateway_method.ventas_post.http_method
+  resource_id             = aws_api_gateway_resource.valorizacion_id.id
+  http_method             = aws_api_gateway_method.valorizacion_post.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.api_handler.invoke_arn
 }
 
-resource "aws_api_gateway_resource" "dev" {
+resource "aws_api_gateway_resource" "orden" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   parent_id   = aws_api_gateway_rest_api.main.root_resource_id
-  path_part   = "dev"
+  path_part   = "orden"
 }
 
-resource "aws_api_gateway_resource" "dev_id" {
+resource "aws_api_gateway_resource" "orden_id" {
   rest_api_id = aws_api_gateway_rest_api.main.id
-  parent_id   = aws_api_gateway_resource.dev.id
+  parent_id   = aws_api_gateway_resource.orden.id
   path_part   = "{id}"
 }
 
-resource "aws_api_gateway_method" "dev_get" {
+resource "aws_api_gateway_method" "post_orden" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
-  resource_id   = aws_api_gateway_resource.dev_id.id
+  resource_id   = aws_api_gateway_resource.orden_id.id
+  http_method   = "POST"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+}
+
+resource "aws_api_gateway_integration" "post_orden" {
+  rest_api_id             = aws_api_gateway_rest_api.main.id
+  resource_id             = aws_api_gateway_resource.orden_id.id
+  http_method             = aws_api_gateway_method.post_orden.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.api_handler.invoke_arn
+}
+
+resource "aws_api_gateway_method" "delete_orden" {
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  resource_id   = aws_api_gateway_resource.orden_id.id
+  http_method   = "DELETE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+}
+
+resource "aws_api_gateway_integration" "delete_orden" {
+  rest_api_id             = aws_api_gateway_rest_api.main.id
+  resource_id             = aws_api_gateway_resource.orden_id.id
+  http_method             = aws_api_gateway_method.delete_orden.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.orden_eliminada_handler.invoke_arn
+}
+
+resource "aws_api_gateway_method" "get_orden" {
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  resource_id   = aws_api_gateway_resource.orden_id.id
   http_method   = "GET"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito.id
 }
 
-resource "aws_api_gateway_integration" "dev_get" {
+resource "aws_api_gateway_integration" "get_orden" {
   rest_api_id             = aws_api_gateway_rest_api.main.id
-  resource_id             = aws_api_gateway_resource.dev_id.id
-  http_method             = aws_api_gateway_method.dev_get.http_method
+  resource_id             = aws_api_gateway_resource.orden_id.id
+  http_method             = aws_api_gateway_method.get_orden.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.api_handler.invoke_arn
@@ -80,9 +114,20 @@ resource "aws_api_gateway_integration" "dev_get" {
 resource "aws_api_gateway_deployment" "main" {
   rest_api_id = aws_api_gateway_rest_api.main.id
 
+   triggers = {
+    redeploy = sha1(join(",", [
+      jsonencode(aws_api_gateway_integration.valorizacion_post),
+      jsonencode(aws_api_gateway_integration.post_orden),
+      jsonencode(aws_api_gateway_integration.delete_orden),
+      jsonencode(aws_api_gateway_integration.get_orden),
+    ]))
+  }
+
   depends_on = [
-    aws_api_gateway_integration.ventas_post,
-    aws_api_gateway_integration.dev_get
+    aws_api_gateway_integration.valorizacion_post,
+    aws_api_gateway_integration.post_orden,
+    aws_api_gateway_integration.delete_orden,
+    aws_api_gateway_integration.get_orden
   ]
 
   lifecycle {
@@ -131,34 +176,56 @@ resource "aws_api_gateway_method_settings" "main" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "api_gateway" {
-  name              = "/aws/apigateway/${var.project_name}-${var.environment}"
-  retention_in_days = 7
-  kms_key_id        = aws_kms_key.cloudwatch_logs.arn
-}
+resource "aws_wafv2_web_acl" "api" {
+  name  = "${local.prefix}-api-waf"
+  scope = "REGIONAL"
 
-resource "aws_api_gateway_domain_name" "api" {
-  domain_name              = "${var.api_subdomain}.${var.domain_name}"
-  regional_certificate_arn = aws_acm_certificate.api.arn
-  security_policy          = "TLS_1_2"
+  default_action { allow {} }
 
-  endpoint_configuration {
-    types = ["REGIONAL"]
+  rule {
+    name     = "IPReputation"
+    priority = 1
+    override_action { none {} }
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAmazonIpReputationList"
+        vendor_name = "AWS"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.prefix}-ip-rep"
+      sampled_requests_enabled   = true
+    }
   }
-}
 
-resource "aws_acm_certificate" "api" {
-  domain_name       = "${var.api_subdomain}.${var.domain_name}"
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
+  rule {
+    name     = "CommonRules"
+    priority = 2
+    override_action { none {} }
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.prefix}-common"
+      sampled_requests_enabled   = true
+    }
   }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${local.prefix}-waf"
+    sampled_requests_enabled   = true
+  }
+
+  tags = { Name = "${local.prefix}-waf" }
 }
 
-resource "aws_api_gateway_base_path_mapping" "api" {
-  api_id      = aws_api_gateway_rest_api.main.id
-  stage_name  = aws_api_gateway_stage.main.stage_name
-  domain_name = aws_api_gateway_domain_name.api.domain_name
+resource "aws_wafv2_web_acl_association" "api" {
+  resource_arn = aws_api_gateway_stage.main.arn
+  web_acl_arn  = aws_wafv2_web_acl.api.arn
 }
-
