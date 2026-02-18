@@ -19,7 +19,7 @@ variable "environment" {
 variable "domain_name" {
   description = "Nombre de dominio principal"
   type        = string
-  default     = "example.com"
+  default     = "consersa.com"
 }
 
 variable "api_subdomain" {
@@ -28,3 +28,6 @@ variable "api_subdomain" {
   default     = "api"
 }
 
+locals {
+  prefix = "${var.project_name}-${var.environment}"
+}
