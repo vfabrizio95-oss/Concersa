@@ -33,6 +33,12 @@ variable "kms_master_key_id" {
   default = null
 }
 
+variable "alarm_email" {
+  description = "Correo para notificaciones de alarmas"
+  type      = string
+  sensitive = true
+}
+
 locals {
   prefix = "${var.project_name}-${var.environment}"
 }

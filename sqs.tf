@@ -15,7 +15,7 @@ resource "aws_sqs_queue" "valorizaciones" {
   }
 }
 
-resource "aws_sqs_queue" "orden_recibida_dlq" {
+resource "aws_sqs_queue" "valorizaciones_dlq" {
   name                      = "${local.prefix}-valorizaciones-dlq.fifo"
   fifo_queue                = true
   message_retention_seconds = 1209600
