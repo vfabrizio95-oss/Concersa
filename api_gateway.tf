@@ -19,10 +19,10 @@ resource "aws_api_gateway_authorizer" "cognito" {
   provider_arns   = [aws_cognito_user_pool.main.arn]
 }
 
-resource "aws_api_gateway_resource" "valorización" {
+resource "aws_api_gateway_resource" "valorizacion" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   parent_id   = aws_api_gateway_rest_api.main.root_resource_id
-  path_part   = "valorización"
+  path_part   = "valorizacion"
 }
 
 resource "aws_api_gateway_resource" "valorizacion_id" {
@@ -33,7 +33,7 @@ resource "aws_api_gateway_resource" "valorizacion_id" {
 
 resource "aws_api_gateway_method" "valorizacion_post" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
-  resource_id   = aws_api_gateway_resource.ventas_id.id
+  resource_id = aws_api_gateway_resource.valorizacion_id.id
   http_method   = "POST"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito.id
@@ -143,7 +143,7 @@ resource "aws_api_gateway_stage" "main" {
   cache_cluster_size    = "0.5"
 
   access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.api_gateway.arn
+    destination_arn = aws_cloudwatch_log_group.api.arn
     format = jsonencode({
       requestId      = "$context.requestId"
       ip             = "$context.identity.sourceIp"
@@ -159,6 +159,10 @@ resource "aws_api_gateway_stage" "main" {
   }
 
   xray_tracing_enabled = true
+
+  depends_on = [
+    aws_api_gateway_account.main
+    ]
 }
 
 resource "aws_api_gateway_method_settings" "main" {

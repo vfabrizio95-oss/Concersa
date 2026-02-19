@@ -34,7 +34,7 @@ resource "aws_sqs_queue" "ordenes" {
   kms_master_key_id           = aws_kms_key.main.id
 
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.orden_validada_dlq.arn
+    deadLetterTargetArn = aws_sqs_queue.ordenes_dlq.arn
     maxReceiveCount     = 3
   })
 
@@ -64,8 +64,10 @@ resource "aws_sns_topic" "notificaciones" {
 }
 
 resource "aws_sns_topic" "valorizacion_terminada" {
-  name              = "${local.prefix}-valorizacion-terminada"
-  kms_master_key_id = aws_kms_key.main.id
+  name                        = "${local.prefix}-valorizacion-terminada.fifo"
+  fifo_topic                  = true
+  content_based_deduplication = true
+  kms_master_key_id           = aws_kms_key.main.id
 
   tags = {
     Name = "${local.prefix}-sns-valorizacion"
@@ -79,13 +81,14 @@ resource "aws_sns_topic_subscription" "valorizacion_a_sqs" {
   raw_message_delivery = true
 }
 
-resource "aws_sqs_queue_policy" "valorizaciones_sns" {
-  queue_url = aws_sqs_queue.valorizaciones.id
+resource "aws_sqs_queue_policy" "valorizaciones_policy" {
+  queue_url = aws_sqs_queue.valorizaciones.url
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "AllowSNS"
         Effect = "Allow"
         Principal = {
           Service = "sns.amazonaws.com"
@@ -97,18 +100,9 @@ resource "aws_sqs_queue_policy" "valorizaciones_sns" {
             "aws:SourceArn" = aws_sns_topic.valorizacion_terminada.arn
           }
         }
-      }
-    ]
-  })
-}
-
-resource "aws_sqs_queue_policy" "valorizaciones_eventbridge" {
-  queue_url = aws_sqs_queue.valorizaciones.url
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
+      },
       {
+        Sid    = "AllowEventBridge"
         Effect = "Allow"
         Principal = {
           Service = "events.amazonaws.com"

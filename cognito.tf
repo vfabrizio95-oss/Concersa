@@ -53,8 +53,8 @@ resource "aws_cognito_user_pool_client" "web" {
     "ALLOW_USER_PASSWORD_AUTH"
   ]
 
-  access_token_validity  = 1
-  id_token_validity      = 1
+  access_token_validity  = 5
+  id_token_validity      = 5
   refresh_token_validity = 30
 
   token_validity_units {
@@ -85,14 +85,14 @@ resource "aws_cognito_user_group" "admins" {
 }
 
 resource "aws_cognito_user_group" "callcenter" {
-  name         = "Operadores CallCenter"
+  name         = "OperadoresCallCenter"
   user_pool_id = aws_cognito_user_pool.main.id
   description  = "Grupo para validadores de rutas"
   precedence   = 2
 }
 
 resource "aws_cognito_user_group" "valorizacion" {
-  name         = "Operadores Valorizacion"
+  name         = "OperadoresValorizacion"
   user_pool_id = aws_cognito_user_pool.main.id
   description  = "Grupo general de usuarios"
   precedence   = 3

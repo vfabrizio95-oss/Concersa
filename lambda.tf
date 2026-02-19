@@ -77,7 +77,7 @@ resource "aws_iam_role_policy" "lambda_custom" {
           "s3:DeleteObject"
         ]
         Resource = [
-          "${aws_s3_bucket.data_storage.arn}/*"
+          "${aws_s3_bucket.pdfs.arn}/*"
         ]
       },
       {
@@ -87,6 +87,7 @@ resource "aws_iam_role_policy" "lambda_custom" {
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl",
           "sqs:SendMessage"
         ]
         Resource = [

@@ -131,8 +131,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         height = 6
 
         properties = {
+          region = "us-east-1"
           title   = "API Gateway - Solicitudes y Errores"
           period  = 300
+          stat = "Sum"
           metrics = [
             ["AWS/ApiGateway", "Count",    "ApiName", aws_api_gateway_rest_api.main.name],
             ["AWS/ApiGateway", "5XXError", "ApiName", aws_api_gateway_rest_api.main.name],
@@ -148,8 +150,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         height = 6
 
         properties = {
+          region = "us-east-1"
           title   = "Lambda - Errores"
           period  = 300
+          stat = "Sum"
           metrics = [
             ["AWS/Lambda", "Errors", "FunctionName", aws_lambda_function.valorizacion_consersa.function_name],
             ["AWS/Lambda", "Errors", "FunctionName", aws_lambda_function.orden_recibida.function_name],
@@ -168,8 +172,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         height = 6
         
         properties = {
+          region = "us-east-1"
           title   = "SQS - Mensajes en Cola"
           period  = 300
+          stat = "Sum"
           metrics = [
             ["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", aws_sqs_queue.valorizaciones.name],
             ["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", aws_sqs_queue.ordenes.name],

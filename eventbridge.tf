@@ -19,7 +19,10 @@ resource "aws_cloudwatch_event_target" "valorizacion_sqs" {
   rule           = aws_cloudwatch_event_rule.valorizacion_creada.name
   event_bus_name = aws_cloudwatch_event_bus.main.name
   arn            = aws_sqs_queue.valorizaciones.arn
-  target_id      = "SQS valorizaciones"
+  target_id      = "SQS_valorizaciones"
+  sqs_target {
+    message_group_id = "default"
+    }
 }
 
 resource "aws_cloudwatch_event_rule" "orden_recibida" {
@@ -36,7 +39,10 @@ resource "aws_cloudwatch_event_target" "orden_recibida_sqs" {
   rule           = aws_cloudwatch_event_rule.orden_recibida.name
   event_bus_name = aws_cloudwatch_event_bus.main.name
   arn            = aws_sqs_queue.ordenes.arn
-  target_id      = "SQS Ordenes"
+  target_id      = "SQS_Ordenes"
+  sqs_target {
+    message_group_id = "default"
+    }
 }
 
 resource "aws_cloudwatch_event_rule" "orden_eliminada" {
@@ -52,8 +58,11 @@ resource "aws_cloudwatch_event_rule" "orden_eliminada" {
 resource "aws_cloudwatch_event_target" "orden_eliminada_sqs" {
   rule           = aws_cloudwatch_event_rule.orden_eliminada.name
   event_bus_name = aws_cloudwatch_event_bus.main.name
-  arn            = aws_sqs_queue.orden.arn
-  target_id      = "SQS ordenes eliminadas"
+  arn            = aws_sqs_queue.ordenes.arn
+  target_id      = "SQS_ordenes_eliminadas"
+  sqs_target {
+    message_group_id = "default"
+    }
 }
 
 resource "aws_cloudwatch_event_bus_policy" "allow_account" {
@@ -61,6 +70,7 @@ resource "aws_cloudwatch_event_bus_policy" "allow_account" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
+      Sid       = "AllowAccountPutEvents"
       Effect    = "Allow"
       Principal = { AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root" }
       Action    = "events:PutEvents"

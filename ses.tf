@@ -14,7 +14,6 @@ resource "aws_route53_record" "ses_verification" {
   records = [aws_ses_domain_identity.main.verification_token]
 }
 
-
 resource "aws_route53_record" "ses_dkim" {
   count   = 3
   zone_id = aws_route53_zone.main.zone_id

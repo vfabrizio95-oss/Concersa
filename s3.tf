@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "pdfs" {
-  bucket = "${local.prefix}-pdfs"
+  bucket = lower("${local.prefix}-pdfs")
   tags = {
     Name = "${local.prefix}-pdfs"
   }

@@ -19,13 +19,7 @@ variable "environment" {
 variable "domain_name" {
   description = "Nombre de dominio principal"
   type        = string
-  default     = "consersa.com"
-}
-
-variable "api_subdomain" {
-  description = "Subdominio para la API"
-  type        = string
-  default     = "api"
+  default     = "consersa.store"
 }
 
 variable "kms_master_key_id" {
@@ -54,5 +48,5 @@ variable "azs" {
 }
 
 locals {
-  prefix = "${var.project_name}-${var.environment}"
+  prefix = lower("${var.project_name}-${var.environment}")
 }
