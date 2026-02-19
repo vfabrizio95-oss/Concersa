@@ -27,7 +27,7 @@ resource "aws_dynamodb_table" "usuarios" {
 
   server_side_encryption {
     enabled = true
-    kms_key_arn = aws_kms_key.dynamodb.arn
+    kms_key_arn = aws_kms_key.main.arn
   }
 
   tags = {
@@ -76,7 +76,7 @@ resource "aws_dynamodb_table" "informacion_original" {
 
   server_side_encryption {
     enabled = true
-    kms_key_arn = aws_kms_key.dynamodb.arn
+    kms_key_arn = aws_kms_key.main.arn
   }
 
   tags = {
@@ -120,42 +120,10 @@ resource "aws_dynamodb_table" "informacion_guardada" {
 
   server_side_encryption {
     enabled = true
-    kms_key_arn = aws_kms_key.dynamodb.arn
+    kms_key_arn = aws_kms_key.main.arn
   }
 
   tags = {
     Name = "${var.project_name}-informacion-guardada"
-  }
-}
-
-resource "aws_cloudwatch_metric_alarm" "dynamodb_read_throttle" {
-  alarm_name          = "${var.project_name}-dynamodb-read-throttle-${var.environment}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
-  metric_name         = "ReadThrottleEvents"
-  namespace           = "AWS/DynamoDB"
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = "10"
-  alarm_description   = "Alerta cuando hay throttling de lectura en DynamoDB"
-
-  dimensions = {
-    TableName = aws_dynamodb_table.usuarios.name
-  }
-}
-
-resource "aws_cloudwatch_metric_alarm" "dynamodb_write_throttle" {
-  alarm_name          = "${var.project_name}-dynamodb-write-throttle-${var.environment}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
-  metric_name         = "WriteThrottleEvents"
-  namespace           = "AWS/DynamoDB"
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = "10"
-  alarm_description   = "Alerta cuando hay throttling de escritura en DynamoDB"
-
-  dimensions = {
-    TableName = aws_dynamodb_table.usuarios.name
   }
 }

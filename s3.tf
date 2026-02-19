@@ -41,7 +41,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "pdfs" {
       storage_class = "STANDARD_IA"
     }
     transition {
-      days = 365;
+      days = 365
       storage_class = "GLACIER"
     }
   }
