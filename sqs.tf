@@ -6,7 +6,7 @@ resource "aws_sqs_queue" "valorizaciones" {
   kms_master_key_id           = aws_kms_key.main.id
 
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.valorizaciones.arn
+    deadLetterTargetArn = aws_sqs_queue.valorizaciones_dlq.arn
     maxReceiveCount     = 3
   })
 

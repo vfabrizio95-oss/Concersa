@@ -90,9 +90,8 @@ resource "aws_iam_role_policy" "lambda_custom" {
           "sqs:SendMessage"
         ]
         Resource = [
-          aws_sqs_queue.orden_recibida.arn,
-          aws_sqs_queue.orden_validada.arn,
-          aws_sqs_queue.orden_ejecutada.arn
+          aws_sqs_queue.valorizaciones.arn,
+          aws_sqs_queue.ordenes.arn
         ]
       },
       {
