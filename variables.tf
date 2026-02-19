@@ -39,6 +39,10 @@ variable "alarm_email" {
   sensitive = true
 }
 
+variable "cognito_callback_urls" {
+  type = list(string)
+}
+
 locals {
   prefix = "${var.project_name}-${var.environment}"
 }
